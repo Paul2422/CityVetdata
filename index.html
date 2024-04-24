@@ -7,7 +7,9 @@
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <link rel="stylesheet" href="css/leaflet.css">
-        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
         <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
         <link rel="stylesheet" href="css/leaflet-measure.css">
         <style>
@@ -25,6 +27,7 @@
         </div>
         <script src="js/qgis2web_expressions.js"></script>
         <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
         <script src="js/leaflet.rotatedMarker.js"></script>
         <script src="js/leaflet.pattern.js"></script>
         <script src="js/leaflet-hash.js"></script>
@@ -34,17 +37,43 @@
         <script src="js/labels.js"></script>
         <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
         <script src="js/leaflet-measure.js"></script>
-        <script src="data/Brgy_Hall_2.js"></script>
-        <script src="data/BarangayBoundary_Lines_3.js"></script>
-        <script src="data/Bayawan_Boundary_4.js"></script>
-        <script src="data/CityVet_5.js"></script>
+        <script src="data/BarangayBoundary_Lines_1.js"></script>
+        <script src="data/Bayawan_Boundary_2.js"></script>
+        <script src="data/Brgy_Hall_3.js"></script>
         <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+            highlightLayer.openPopup();
+        }
         var map = L.map('map', {
             zoomControl:true, maxZoom:28, minZoom:1
         })
         var hash = new L.Hash(map);
         map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
         var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        document.querySelector(".leaflet-popup-pane").addEventListener("load", function(event) {
+          var tagName = event.target.tagName,
+            popup = map._popup;
+          // Also check if flag is already set.
+          if (tagName === "IMG" && popup && !popup._updated) {
+            popup._updated = true; // Set flag to prevent looping.
+            popup.update();
+          }
+        }, true);
         var measureControl = new L.Control.Measure({
             position: 'topleft',
             primaryLengthUnit: 'meters',
@@ -76,66 +105,19 @@
         });
         layer_OpenStreetMap_0;
         map.addLayer(layer_OpenStreetMap_0);
-        map.createPane('pane_Googlehybrid_1');
-        map.getPane('pane_Googlehybrid_1').style.zIndex = 401;
-        var layer_Googlehybrid_1 = L.tileLayer('http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}', {
-            pane: 'pane_Googlehybrid_1',
-            opacity: 1.0,
-            attribution: '',
-            minZoom: 1,
-            maxZoom: 28,
-            minNativeZoom: 0,
-            maxNativeZoom: 18
-        });
-        layer_Googlehybrid_1;
-        map.addLayer(layer_Googlehybrid_1);
-        function pop_Brgy_Hall_2(feature, layer) {
-            var popupContent = '<table>\
-                    <tr>\
-                        <th scope="row">Name</th>\
-                        <td>' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <th scope="row">Population</th>\
-                        <td>' + (feature.properties['Population'] !== null ? autolinker.link(feature.properties['Population'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                </table>';
-            layer.bindPopup(popupContent, {maxHeight: 400});
-        }
-
-        function style_Brgy_Hall_2_0() {
-            return {
-                pane: 'pane_Brgy_Hall_2',
-        rotationAngle: 0.0,
-        rotationOrigin: 'center center',
-        icon: L.icon({
-            iconUrl: 'markers/tourism=museum.svg',
-            iconSize: [19.0, 19.0]
-        }),
-                interactive: true,
-            }
-        }
-        map.createPane('pane_Brgy_Hall_2');
-        map.getPane('pane_Brgy_Hall_2').style.zIndex = 402;
-        map.getPane('pane_Brgy_Hall_2').style['mix-blend-mode'] = 'normal';
-        var layer_Brgy_Hall_2 = new L.geoJson(json_Brgy_Hall_2, {
-            attribution: '',
-            interactive: true,
-            dataVar: 'json_Brgy_Hall_2',
-            layerName: 'layer_Brgy_Hall_2',
-            pane: 'pane_Brgy_Hall_2',
-            onEachFeature: pop_Brgy_Hall_2,
-            pointToLayer: function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.marker(latlng, style_Brgy_Hall_2_0(feature));
-            },
-        });
-        bounds_group.addLayer(layer_Brgy_Hall_2);
-        map.addLayer(layer_Brgy_Hall_2);
-        function pop_BarangayBoundary_Lines_3(feature, layer) {
+        function pop_BarangayBoundary_Lines_1(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
             var popupContent = '<table>\
                     <tr>\
                         <td colspan="2">' + (feature.properties['ID'] !== null ? autolinker.link(feature.properties['ID'].toLocaleString()) : '') + '</td>\
@@ -169,14 +151,18 @@
                     </tr>\
                 </table>';
             layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
         }
 
-        function style_BarangayBoundary_Lines_3_0() {
+        function style_BarangayBoundary_Lines_1_0() {
             return {
-                pane: 'pane_BarangayBoundary_Lines_3',
+                pane: 'pane_BarangayBoundary_Lines_1',
                 opacity: 1,
                 color: 'rgba(252,133,10,1.0)',
-                dashArray: '1,5',
+                dashArray: '2.0,4.0',
                 lineCap: 'square',
                 lineJoin: 'bevel',
                 weight: 2.0,
@@ -184,28 +170,39 @@
                 interactive: true,
             }
         }
-        map.createPane('pane_BarangayBoundary_Lines_3');
-        map.getPane('pane_BarangayBoundary_Lines_3').style.zIndex = 403;
-        map.getPane('pane_BarangayBoundary_Lines_3').style['mix-blend-mode'] = 'normal';
-        var layer_BarangayBoundary_Lines_3 = new L.geoJson(json_BarangayBoundary_Lines_3, {
+        map.createPane('pane_BarangayBoundary_Lines_1');
+        map.getPane('pane_BarangayBoundary_Lines_1').style.zIndex = 401;
+        map.getPane('pane_BarangayBoundary_Lines_1').style['mix-blend-mode'] = 'normal';
+        var layer_BarangayBoundary_Lines_1 = new L.geoJson(json_BarangayBoundary_Lines_1, {
             attribution: '',
             interactive: true,
-            dataVar: 'json_BarangayBoundary_Lines_3',
-            layerName: 'layer_BarangayBoundary_Lines_3',
-            pane: 'pane_BarangayBoundary_Lines_3',
-            onEachFeature: pop_BarangayBoundary_Lines_3,
-            style: style_BarangayBoundary_Lines_3_0,
+            dataVar: 'json_BarangayBoundary_Lines_1',
+            layerName: 'layer_BarangayBoundary_Lines_1',
+            pane: 'pane_BarangayBoundary_Lines_1',
+            onEachFeature: pop_BarangayBoundary_Lines_1,
+            style: style_BarangayBoundary_Lines_1_0,
         });
-        bounds_group.addLayer(layer_BarangayBoundary_Lines_3);
-        map.addLayer(layer_BarangayBoundary_Lines_3);
-        function pop_Bayawan_Boundary_4(feature, layer) {
+        bounds_group.addLayer(layer_BarangayBoundary_Lines_1);
+        map.addLayer(layer_BarangayBoundary_Lines_1);
+        function pop_Bayawan_Boundary_2(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
             var popupContent = '<table>\
                     <tr>\
                         <td colspan="2">' + (feature.properties['ID'] !== null ? autolinker.link(feature.properties['ID'].toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <th scope="row">BARANGAY</th>\
-                        <td>' + (feature.properties['BARANGAY'] !== null ? autolinker.link(feature.properties['BARANGAY'].toLocaleString()) : '') + '</td>\
+                        <td colspan="2">' + (feature.properties['BARANGAY'] !== null ? autolinker.link(feature.properties['BARANGAY'].toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
                         <td colspan="2">' + (feature.properties['DESC'] !== null ? autolinker.link(feature.properties['DESC'].toLocaleString()) : '') + '</td>\
@@ -233,14 +230,18 @@
                     </tr>\
                 </table>';
             layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
         }
 
-        function style_Bayawan_Boundary_4_0() {
+        function style_Bayawan_Boundary_2_0() {
             return {
-                pane: 'pane_Bayawan_Boundary_4',
+                pane: 'pane_Bayawan_Boundary_2',
                 opacity: 1,
                 color: 'rgba(3,26,28,1.0)',
-                dashArray: '10,5',
+                dashArray: '12.0,6.0',
                 lineCap: 'square',
                 lineJoin: 'bevel',
                 weight: 3.0,
@@ -248,77 +249,85 @@
                 interactive: true,
             }
         }
-        map.createPane('pane_Bayawan_Boundary_4');
-        map.getPane('pane_Bayawan_Boundary_4').style.zIndex = 404;
-        map.getPane('pane_Bayawan_Boundary_4').style['mix-blend-mode'] = 'normal';
-        var layer_Bayawan_Boundary_4 = new L.geoJson(json_Bayawan_Boundary_4, {
+        map.createPane('pane_Bayawan_Boundary_2');
+        map.getPane('pane_Bayawan_Boundary_2').style.zIndex = 402;
+        map.getPane('pane_Bayawan_Boundary_2').style['mix-blend-mode'] = 'normal';
+        var layer_Bayawan_Boundary_2 = new L.geoJson(json_Bayawan_Boundary_2, {
             attribution: '',
             interactive: true,
-            dataVar: 'json_Bayawan_Boundary_4',
-            layerName: 'layer_Bayawan_Boundary_4',
-            pane: 'pane_Bayawan_Boundary_4',
-            onEachFeature: pop_Bayawan_Boundary_4,
-            style: style_Bayawan_Boundary_4_0,
+            dataVar: 'json_Bayawan_Boundary_2',
+            layerName: 'layer_Bayawan_Boundary_2',
+            pane: 'pane_Bayawan_Boundary_2',
+            onEachFeature: pop_Bayawan_Boundary_2,
+            style: style_Bayawan_Boundary_2_0,
         });
-        bounds_group.addLayer(layer_Bayawan_Boundary_4);
-        map.addLayer(layer_Bayawan_Boundary_4);
-        function pop_CityVet_5(feature, layer) {
+        bounds_group.addLayer(layer_Bayawan_Boundary_2);
+        map.addLayer(layer_Bayawan_Boundary_2);
+        function pop_Brgy_Hall_3(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
             var popupContent = '<table>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['field_1'] !== null ? autolinker.link(feature.properties['field_1'].toLocaleString()) : '') + '</td>\
+                        <th scope="row">Name</th>\
+                        <td>' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
+                        <th scope="row">Population</th>\
+                        <td>' + (feature.properties['Population'] !== null ? autolinker.link(feature.properties['Population'].toLocaleString()) : '') + '</td>\
                     </tr>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['Lat'] !== null ? autolinker.link(feature.properties['Lat'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['Long'] !== null ? autolinker.link(feature.properties['Long'].toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['field_5'] !== null ? autolinker.link(feature.properties['field_5'].toLocaleString()) : '') + '</td>\
+                        <td colspan="2">' + (feature.properties['Photo'] !== null ? '<img src="images/' + String(feature.properties['Photo']).replace(/[\\\/:]/g, '_').trim() + '">' : '') + '</td>\
                     </tr>\
                 </table>';
             layer.bindPopup(popupContent, {maxHeight: 400});
+            var popup = layer.getPopup();
+            var content = popup.getContent();
+            var updatedContent = removeEmptyRowsFromPopupContent(content, feature);
+            popup.setContent(updatedContent);
         }
 
-        function style_CityVet_5_0() {
+        function style_Brgy_Hall_3_0() {
             return {
-                pane: 'pane_CityVet_5',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(232,113,141,1.0)',
+                pane: 'pane_Brgy_Hall_3',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/Brgy_Hall_3.svg',
+            iconSize: [19.0, 19.0]
+        }),
                 interactive: true,
             }
         }
-        map.createPane('pane_CityVet_5');
-        map.getPane('pane_CityVet_5').style.zIndex = 405;
-        map.getPane('pane_CityVet_5').style['mix-blend-mode'] = 'normal';
-        var layer_CityVet_5 = new L.geoJson(json_CityVet_5, {
+        map.createPane('pane_Brgy_Hall_3');
+        map.getPane('pane_Brgy_Hall_3').style.zIndex = 403;
+        map.getPane('pane_Brgy_Hall_3').style['mix-blend-mode'] = 'normal';
+        var layer_Brgy_Hall_3 = new L.geoJson(json_Brgy_Hall_3, {
             attribution: '',
             interactive: true,
-            dataVar: 'json_CityVet_5',
-            layerName: 'layer_CityVet_5',
-            pane: 'pane_CityVet_5',
-            onEachFeature: pop_CityVet_5,
+            dataVar: 'json_Brgy_Hall_3',
+            layerName: 'layer_Brgy_Hall_3',
+            pane: 'pane_Brgy_Hall_3',
+            onEachFeature: pop_Brgy_Hall_3,
             pointToLayer: function (feature, latlng) {
                 var context = {
                     feature: feature,
                     variables: {}
                 };
-                return L.circleMarker(latlng, style_CityVet_5_0(feature));
+                return L.marker(latlng, style_Brgy_Hall_3_0(feature));
             },
         });
-        bounds_group.addLayer(layer_CityVet_5);
-        map.addLayer(layer_CityVet_5);
+        bounds_group.addLayer(layer_Brgy_Hall_3);
+        map.addLayer(layer_Brgy_Hall_3);
             var title = new L.Control();
             title.onAdd = function (map) {
                 this._div = L.DomUtil.create('div', 'info');
@@ -340,7 +349,21 @@
         document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
         .title += 'Search for a place';
         var baseMaps = {};
-        L.control.layers(baseMaps,{'<img src="legend/CityVet_5.png" /> City Vet': layer_CityVet_5,'<img src="legend/Bayawan_Boundary_4.png" /> Bayawan_Boundary': layer_Bayawan_Boundary_4,'<img src="legend/BarangayBoundary_Lines_3.png" /> Barangay-Boundary_Lines': layer_BarangayBoundary_Lines_3,'<img src="legend/Brgy_Hall_2.png" /> Brgy_Hall': layer_Brgy_Hall_2,"Google hybrid": layer_Googlehybrid_1,"OpenStreetMap": layer_OpenStreetMap_0,}).addTo(map);
+        var overlaysTree = [
+            {label: '<img src="legend/Brgy_Hall_3.png" /> Brgy_Hall', layer: layer_Brgy_Hall_3},
+            {label: '<img src="legend/Bayawan_Boundary_2.png" /> Bayawan_Boundary', layer: layer_Bayawan_Boundary_2},
+            {label: '<img src="legend/BarangayBoundary_Lines_1.png" /> Barangay-Boundary_Lines', layer: layer_BarangayBoundary_Lines_1},
+            {label: "OpenStreetMap", layer: layer_OpenStreetMap_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
         setBounds();
         </script>
     </body>
